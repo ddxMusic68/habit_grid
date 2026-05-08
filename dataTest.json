@@ -1,0 +1,13 @@
+[
+    {
+        "name": "test item",
+        "countUnit": "items",
+        "countAmount": 1,
+        "totalCount": 4,
+        "unused": 1,
+        "squareCost": 10,
+        "boolList": [true, false, true, false]
+    }
+]
+
+
