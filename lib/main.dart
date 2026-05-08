@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:math';
-// change name to habitGrid
 
-var habitItem1 = ValueNotifier<HabitItem>(
-  HabitItem(
-    name: 'Test Habit', 
-    countUnit: "pushup",
-    totalCount: 3,
-    countIncrement: 1,
-    squareCost: 1,
-    boolList: [false, false, true, false]
-  )
+var habitItem1 = HabitItem(
+  name: 'Test Habit', 
+  countUnit: "pushup",
+  totalCount: 3,
+  countIncrement: 1,
+  squareCost: 1,
+  boolList: [false, true, false, false, true, false, false, true, true]
 );
 
 void main() {
@@ -23,98 +21,105 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body:
-            MediaQuery.of(context).size.width >
-                MediaQuery.of(context).size.height
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [Overview(habitItem: habitItem1,), buildHabitPanel(context, habitItem1)],
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [Overview(habitItem: habitItem1,), buildHabitPanel(context, habitItem1)],
-              ),
+    return ChangeNotifierProvider<HabitItem>.value(
+      value: habitItem1,
+      child: MaterialApp(
+        home: Scaffold(
+          body:
+              MediaQuery.of(context).size.width >
+                  MediaQuery.of(context).size.height
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [Overview(), buildHabitPanel(context, habitItem1)],
+                )
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [Overview(), buildHabitPanel(context, habitItem1)],
+                  )
+                ),
+        ),
       ),
     );
   }
 }
 
 // ButtonSwitch
-class ButtonSwitch extends StatefulWidget {
+class ButtonSwitch extends StatelessWidget {
+  final bool state;
+  final VoidCallback onPressed;
+
   final Color onColor;
   final Color offColor;
-  final bool initialState;
   final ButtonStyle? style;
-  final bool toggleOnce;
 
   const ButtonSwitch({
     super.key,
+    this.style,
     this.onColor = Colors.green,
     this.offColor = Colors.red,
-    this.initialState = false,
-    this.style,
-    this.toggleOnce = false,
+    required this.state,
+    required this.onPressed,
   });
-
-  @override
-  State<ButtonSwitch> createState() => _ButtonSwitchState();
-}
-
-class _ButtonSwitchState extends State<ButtonSwitch> {
-  late bool state;
-
-  @override
-  void initState() {
-    super.initState();
-    state = widget.initialState;
-  }
-
-  void _handlePress() {
-    setState(() {
-      state = !state;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: _handlePress,
+      onPressed: onPressed,
       style:
-          widget.style?.copyWith(
-            backgroundColor: MaterialStateProperty.all(
-              state ? widget.onColor : widget.offColor,
-            ),
-          ) ??
-          ElevatedButton.styleFrom(
-            backgroundColor: state ? widget.onColor : widget.offColor,
+        style?.copyWith(
+          backgroundColor: MaterialStateProperty.all(
+            state ? onColor : offColor,
           ),
+        ) ??
+        ElevatedButton.styleFrom(
+          backgroundColor: state ? onColor : offColor,
+        ),
       child: null,
     );
   }
 }
 
-class HabitGrid extends StatelessWidget {
+class HabitGrid extends StatefulWidget {
+  final HabitItem habitItem;
   final int sideLength;
 
-  const HabitGrid({super.key, required this.sideLength});
+  const HabitGrid({
+    super.key, 
+    required this.habitItem,
+    required this.sideLength,
+  });
+
+  @override
+  State<HabitGrid> createState() => _HabitGridState();
+}
+
+class _HabitGridState extends State<HabitGrid> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void toggleIndex(int index) {
+    if (widget.habitItem.boolList[index] == true || widget.habitItem.unused <= 0) return;
+    setState(() {
+      widget.habitItem.boolList[index] = !widget.habitItem.boolList[index];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final HabitItem habitItem = widget.habitItem;
+    final int sideLength = widget.sideLength;
+
+    double size = 0.8 * min(
+      MediaQuery.of(context).size.width,
+      MediaQuery.of(context).size.height,
+    );
     return SizedBox(
-      width:
-          0.8 *
-          min(
-            MediaQuery.of(context).size.width,
-            MediaQuery.of(context).size.height,
-          ),
-      height:
-          0.8 *
-          min(
-            MediaQuery.of(context).size.width,
-            MediaQuery.of(context).size.height,
-          ),
+      width: size,
+      height: size,
       child: GridView.count(
         crossAxisCount: sideLength,
         children: List.generate(
@@ -123,6 +128,11 @@ class HabitGrid extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             ),
+            state: habitItem.boolList[index],
+            onPressed: () => {
+              toggleIndex(index),
+              habitItem.update(),
+            },
           ),
         ),
       ),
@@ -131,11 +141,14 @@ class HabitGrid extends StatelessWidget {
 }
 
 // Habit Panel
-Widget buildHabitPanel(BuildContext context, ValueNotifier<HabitItem> habitItem) {
+Widget buildHabitPanel(BuildContext context, HabitItem habitItem) {
   return Column(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    crossAxisAlignment: CrossAxisAlignment.center,
+
     children: [
-      HabitGrid(sideLength: 10),
+      HabitGrid(habitItem: habitItem1, sideLength: sqrt(habitItem1.boolList.length).toInt()),
+      SizedBox(height: 20),
       IconButton(
         icon: Icon(Icons.add),
         constraints: BoxConstraints(
@@ -151,8 +164,7 @@ Widget buildHabitPanel(BuildContext context, ValueNotifier<HabitItem> habitItem)
           foregroundColor: Colors.white,
         ),
         onPressed: () {
-          habitItem.value = habitItem.value.copyWith(totalCount: habitItem.value.totalCount + habitItem.value.countIncrement);
-
+          habitItem.update(totalCount: habitItem.totalCount + habitItem.countIncrement);
         },
       ),
     ],
@@ -160,20 +172,12 @@ Widget buildHabitPanel(BuildContext context, ValueNotifier<HabitItem> habitItem)
 }
 
 // Overview
-class Overview extends StatefulWidget {
-  final ValueNotifier<HabitItem> habitItem;
+class Overview extends StatelessWidget {
+  const Overview({super.key});
 
-  const Overview({super.key, required this.habitItem});
-
-  @override
-  State<Overview> createState() => _OverviewState();
-}
-
-class _OverviewState extends State<Overview> {
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<HabitItem>(
-      valueListenable: widget.habitItem,
+    return Consumer<HabitItem>(
       builder: (context, habitItem, child) {
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -190,13 +194,13 @@ class _OverviewState extends State<Overview> {
 }
 
 // Data Classes
-class HabitItem {
-  final String name;
-  final String countUnit;
-  final int totalCount;
-  final int countIncrement;
-  final int squareCost;
-  final List<bool> boolList;
+class HabitItem with ChangeNotifier {
+  String name;
+  String countUnit;
+  int totalCount;
+  int countIncrement;
+  int squareCost;
+  List<bool> boolList;
 
   HabitItem({
     required this.name,
@@ -207,7 +211,7 @@ class HabitItem {
     required this.boolList,
   });
 
-  HabitItem copyWith({
+  void update({
     String? name,
     String? countUnit,
     int? totalCount,
@@ -215,14 +219,13 @@ class HabitItem {
     int? squareCost,
     List<bool>? boolList,
   }) {
-    return HabitItem(
-      name: name ?? this.name,
-      countUnit: countUnit ?? this.countUnit,
-      countIncrement: countIncrement ?? this.countIncrement,
-      totalCount: totalCount ?? this.totalCount,
-      squareCost: squareCost ?? this.squareCost,
-      boolList: boolList ?? this.boolList,
-    );
+    this.name = name ?? this.name;
+    this.countUnit = countUnit ?? this.countUnit;
+    this.countIncrement = countIncrement ?? this.countIncrement;
+    this.totalCount = totalCount ?? this.totalCount;
+    this.squareCost = squareCost ?? this.squareCost;
+    this.boolList = boolList ?? this.boolList;
+    notifyListeners();
   }
 
   int get unused => ((totalCount - doneSquares*squareCost)/squareCost).floor();
