@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'habit_item.dart';
 import 'dart:math';
 
-
 // ButtonSwitch
 class ButtonSwitch extends StatelessWidget {
   final bool state;
