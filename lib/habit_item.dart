@@ -32,7 +32,8 @@ class HabitItem with ChangeNotifier {
   }
 
   void toggleSquare(int index) {
-    if (index < 0 || index >= boolList.length) return;
+    if (index < 0 || index >= boolList.length || boolList[index]) return;
+    if (totalCount - doneSquares * squareCost < squareCost) return;
     boolList[index] = !boolList[index];
     notifyListeners();
   }
@@ -47,4 +48,42 @@ class HabitItem with ChangeNotifier {
 
   double get percentageComplete =>
       totalSquares > 0 ? (doneSquares / totalSquares) * 100 : 0.0;
+}
+
+class HabitItemList with ChangeNotifier {
+  List<HabitItem> items;
+  int currentIndex = 0;
+
+  HabitItemList({required this.items});
+
+  HabitItem get currentItem => items[currentIndex];
+
+  void setIndex(int index) {
+    if (index < 0 || index >= items.length) return;
+    currentIndex = index;
+    notifyListeners();
+  }
+
+  void toggleCurrentSquare(int index) {
+    currentItem.toggleSquare(index);
+    notifyListeners();
+  }
+
+  void updateCurrentItem({
+    String? name,
+    String? countUnit,
+    double? totalCount,
+    double? countIncrement,
+    double? squareCost,
+    List<bool>? boolList,
+  }) {
+    currentItem.update(
+      name: name,
+      countIncrement: countIncrement,
+      totalCount: totalCount,
+      squareCost: squareCost,
+      boolList: boolList,
+    );
+    notifyListeners();
+  }
 }

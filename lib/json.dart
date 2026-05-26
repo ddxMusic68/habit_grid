@@ -4,8 +4,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 void main() async {
-  // final settings = await loadSettings();
-  // print(settings);
 }
 
 const Map<String, dynamic> defaultSettings = {
