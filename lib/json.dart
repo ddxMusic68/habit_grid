@@ -2,16 +2,10 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import './habit_item.dart';
 
 void main() async {
 }
-
-const Map<String, dynamic> defaultSettings = {
-  "work": 20,
-  "notes": 5,
-  "rest": 10,
-  "pages": 1
-};
 
 Future<File> _localFile(String fileName) async {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
@@ -25,25 +19,42 @@ Future<File> _localFile(String fileName) async {
   }
 }
 
-Future<Map<String, dynamic>> loadSettings(String fileName) async {
+Future<List<Map<String, dynamic>>> loadJSON(String fileName) async {
   try {
     final file = await _localFile(fileName);
 
     if (!await file.exists()) {
-      return defaultSettings; // return default settings
+      return [];
     }
 
     final contents = await file.readAsString();
-    return jsonDecode(contents);
+    final decoded = jsonDecode(contents);
+
+    return List<Map<String, dynamic>>.from(decoded);
   } catch (e) {
-    return defaultSettings;
+    return [];
   }
 }
-
-Future<void> saveSettings(String fileName, Map<String, dynamic> json) async {
+Future<void> saveJSON(String fileName, List<Object> json) async {
   final file = await _localFile(fileName);
+  print('Saving to ${file.path}'); // Debugging line
+
 
   final jsonString = jsonEncode(json);
 
   await file.writeAsString(jsonString);
+}
+
+Future<HabitItemList> loadHabitItems() async {
+  final jsonList = await loadJSON('storage.json');
+  
+  final habitItems = jsonList.map((json) => HabitItem(
+    name: json['name'],
+    totalCount: 0,
+    countIncrement: json['countIncrement'],
+    squareCost: json['squareCost'],
+    boolList: List<bool>.from(json['boolList']),
+  )).toList();
+  print('habitItems: $habitItems'); // Debugging line
+  return HabitItemList(items: habitItems);
 }
