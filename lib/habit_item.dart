@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './json.dart';
 
 class HabitItem with ChangeNotifier {
   String name;
@@ -56,7 +57,18 @@ class HabitItemList with ChangeNotifier {
 
   HabitItemList({required this.items});
 
-  HabitItem get currentItem => items[currentIndex];
+  HabitItem currentItem() {
+    if (items.isEmpty) {
+      return HabitItem(
+        name: 'New Habit',
+        totalCount: 0,
+        countIncrement: 1,
+        squareCost: 1,
+        boolList: [false],
+      );
+    }
+    return items[currentIndex];
+  }
 
   void setIndex(int index) {
     if (index < 0 || index >= items.length) return;
@@ -65,7 +77,7 @@ class HabitItemList with ChangeNotifier {
   }
 
   void toggleCurrentSquare(int index) {
-    currentItem.toggleSquare(index);
+    currentItem().toggleSquare(index);
     notifyListeners();
   }
 
@@ -77,7 +89,7 @@ class HabitItemList with ChangeNotifier {
     double? squareCost,
     List<bool>? boolList,
   }) {
-    currentItem.update(
+    currentItem().update(
       name: name,
       countIncrement: countIncrement,
       totalCount: totalCount,
@@ -85,5 +97,15 @@ class HabitItemList with ChangeNotifier {
       boolList: boolList,
     );
     notifyListeners();
+  }
+
+  Future<void> load() async {
+    final data = await loadHabitItems();
+    items = data;
+    notifyListeners();
+  }
+
+  Future<void> save() async {
+    await saveHabitItems(items);
   }
 }

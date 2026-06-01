@@ -44,8 +44,8 @@ class HabitGrid extends StatelessWidget {
   Widget build(BuildContext context) {
       return Consumer<HabitItemList>(
         builder: (context, habitItemList, child) {
-          final int sideLength = habitItemList.currentItem.totalSquares > 0
-              ? sqrt(habitItemList.currentItem.totalSquares).toInt()
+          final int sideLength = habitItemList.currentItem().totalSquares > 0
+              ? sqrt(habitItemList.currentItem().totalSquares).toInt()
               : 1;
           double size =
               0.8 *
@@ -66,9 +66,10 @@ class HabitGrid extends StatelessWidget {
                       borderRadius: BorderRadius.zero,
                     ),
                   ),
-                  state: habitItemList.currentItem.boolList[index],
+                  state: habitItemList.currentItem().boolList[index],
                   onPressed: () => {
                     habitItemList.toggleCurrentSquare(index),
+                    habitItemList.save()
                   },
                 ),
               ),
@@ -106,7 +107,7 @@ Widget buildHabitPanel(BuildContext context) {
             ),
             onPressed: () {
               habitItemList.updateCurrentItem(
-                totalCount: habitItemList.currentItem.totalCount + habitItemList.currentItem.countIncrement,
+                totalCount: habitItemList.currentItem().totalCount + habitItemList.currentItem().countIncrement,
               );
             },
           ),

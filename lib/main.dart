@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:money_filler/json.dart';
 import 'package:provider/provider.dart';
 
 import 'habit_item.dart';
@@ -38,22 +37,20 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int currentIndex = 0;
-  HabitItemList? habitItemList;
+  HabitItemList habitItemList = HabitItemList(items: []);
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    initData();
   }
 
-  Future<void> _loadData() async {
-    habitItemList = await loadHabitItems();
-    setState(() {});
-  }
-
-  void reloadData() async {
-    habitItemList = await loadHabitItems();
-    setState(() {});
+  void initData() async {
+    await habitItemList.load();
+    setState(() {
+      isLoading = false;
+    });
   }
 
   void setCurrentIndex(int index) {
@@ -64,41 +61,44 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return habitItemList != null
-        ? ChangeNotifierProvider<HabitItemList>.value(
-            value: habitItemList!,
-            child: MaterialApp(
-              home: Scaffold(
-                appBar: AppBar(title: Text('Habit Grid')),
-                body: IndexedStack(
-            index: currentIndex,
-            children: [
-              habitPage(context),
-              NewHabitPage(reloadData: reloadData),
-            ],
-          ),
-          drawer: Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                for (int i=0; i<habitItemList!.items.length; i++)
-                  ElevatedButton(
-                    onPressed: () {
-                      habitItemList!.setIndex(i);
-                    },
-                    child: Text(habitItemList!.items[i].name),
-                  ),
-              ],
-            ),
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              setCurrentIndex((currentIndex + 1) % 2);
-            },
-            child: currentIndex == 0 ? Icon(Icons.add) : Icon(Icons.home),
-          ),
+    if (isLoading) {
+      return CircularProgressIndicator();
+    }
+
+    return ChangeNotifierProvider<HabitItemList>.value(
+        value: habitItemList,
+        child: MaterialApp(
+          home: Scaffold(
+            appBar: AppBar(title: Text('Habit Grid')),
+            body: IndexedStack(
+        index: currentIndex,
+        children: [
+          habitPage(context),
+          NewHabitPage(onHabitAdded: initData),
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            for (int i=0; i<habitItemList.items.length; i++)
+              ElevatedButton(
+                onPressed: () {
+                  habitItemList.setIndex(i);
+                },
+                child: Text(habitItemList.items[i].name),
+              ),
+          ],
         ),
       ),
-    ) : CircularProgressIndicator();
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setCurrentIndex((currentIndex + 1) % 2);
+        },
+        child: currentIndex == 0 ? Icon(Icons.add) : Icon(Icons.home),
+      ),
+    ),
+  ),
+);
   }
 }

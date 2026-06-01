@@ -3,8 +3,9 @@ import 'package:money_filler/json.dart';
 import 'dart:math';
 
 class NewHabitPage extends StatefulWidget {
-  final Function reloadData;
-  const NewHabitPage({super.key, required this.reloadData});
+  final Function onHabitAdded;
+
+  const NewHabitPage({super.key, required this.onHabitAdded});
 
   @override
   State<NewHabitPage> createState() => _NewHabitPageState();
@@ -55,8 +56,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 'boolList': List.filled(boolListLength, false),
               });
               saveJSON('storage.json', data);
+              widget.onHabitAdded();
             });
-            widget.reloadData();
           },
           child: Text('Add Habit'),
         ),

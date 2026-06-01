@@ -37,24 +37,33 @@ Future<List<Map<String, dynamic>>> loadJSON(String fileName) async {
 }
 Future<void> saveJSON(String fileName, List<Object> json) async {
   final file = await _localFile(fileName);
-  print('Saving to ${file.path}'); // Debugging line
-
-
+  
   final jsonString = jsonEncode(json);
 
   await file.writeAsString(jsonString);
 }
 
-Future<HabitItemList> loadHabitItems() async {
+Future<List<HabitItem>> loadHabitItems() async {
   final jsonList = await loadJSON('storage.json');
   
   final habitItems = jsonList.map((json) => HabitItem(
     name: json['name'],
-    totalCount: 0,
+    totalCount: json['totalCount'],
     countIncrement: json['countIncrement'],
     squareCost: json['squareCost'],
     boolList: List<bool>.from(json['boolList']),
   )).toList();
-  print('habitItems: $habitItems'); // Debugging line
-  return HabitItemList(items: habitItems);
+  return habitItems;
+}
+
+Future<void> saveHabitItems(List<HabitItem> items) async {
+  final jsonList = items.map((item) => {
+    "totalCount": item.totalCount,
+    'name': item.name,
+    'countIncrement': item.countIncrement,
+    'squareCost': item.squareCost,
+    'boolList': item.boolList,
+  }).toList();
+
+  await saveJSON('storage.json', jsonList);
 }

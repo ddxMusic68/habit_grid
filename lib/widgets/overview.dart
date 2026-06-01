@@ -12,10 +12,10 @@ class Overview extends StatelessWidget {
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text('Name: ${habitItemList.currentItem.name}'),
-            Text('Count: ${habitItemList.currentItem.totalCount}'),
-            Text('Unused: ${habitItemList.currentItem.unused}'),
-            Text(habitItemList.currentItem.progressText),
+            Text('Name: ${habitItemList.currentItem().name}'),
+            Text('Count: ${habitItemList.currentItem().totalCount}'),
+            Text('Unused: ${habitItemList.currentItem().unused}'),
+            Text(habitItemList.currentItem().progressText),
           ],
         );
       },
