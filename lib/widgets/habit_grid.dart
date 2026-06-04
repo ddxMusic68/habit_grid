@@ -45,7 +45,7 @@ class HabitGrid extends StatelessWidget {
       return Consumer<HabitItemList>(
         builder: (context, habitItemList, child) {
           final int sideLength = habitItemList.currentItem().totalSquares > 0
-              ? sqrt(habitItemList.currentItem().totalSquares).toInt()
+              ? sqrt(habitItemList.currentItem().totalSquares).ceil()
               : 1;
           double size =
               0.8 *
@@ -60,7 +60,10 @@ class HabitGrid extends StatelessWidget {
               crossAxisCount: sideLength,
               children: List.generate(
                 sideLength * sideLength,
-                (index) => ButtonSwitch(
+                (index) => index>=habitItemList.currentItem().totalSquares
+                    ? Container() // Empty cell for out-of-range indices
+                    :
+                ButtonSwitch(
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.zero,
@@ -109,6 +112,7 @@ Widget buildHabitPanel(BuildContext context) {
               habitItemList.updateCurrentItem(
                 totalCount: habitItemList.currentItem().totalCount + habitItemList.currentItem().countIncrement,
               );
+              habitItemList.save();
             },
           ),
         ],

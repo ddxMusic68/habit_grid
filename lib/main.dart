@@ -66,39 +66,50 @@ class _MyAppState extends State<MyApp> {
     }
 
     return ChangeNotifierProvider<HabitItemList>.value(
-        value: habitItemList,
-        child: MaterialApp(
-          home: Scaffold(
-            appBar: AppBar(title: Text('Habit Grid')),
-            body: IndexedStack(
-        index: currentIndex,
-        children: [
-          habitPage(context),
-          NewHabitPage(onHabitAdded: initData),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            for (int i=0; i<habitItemList.items.length; i++)
-              ElevatedButton(
-                onPressed: () {
-                  habitItemList.setIndex(i);
-                },
-                child: Text(habitItemList.items[i].name),
-              ),
-          ],
+      value: habitItemList,
+      child: MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(title: Text('Habit Grid')),
+          body: IndexedStack(
+            index: currentIndex,
+            children: [
+              habitPage(context),
+              NewHabitPage(onHabitAdded: initData),
+            ],
+          ),
+          drawer: Consumer<HabitItemList>(
+            builder: (context, habitItemList, child) {
+              return Drawer(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    for (int i = 0; i < habitItemList.items.length; i++)
+                      ListTile(
+                        onTap: () {
+                          habitItemList.setIndex(i);
+                        },
+                        title: Text(habitItemList.items[i].name),
+                        trailing: IconButton(
+                          onPressed: () {
+                            habitItemList.deleteItem(i);
+                            habitItemList.save();
+                          },
+                          icon: Icon(Icons.delete),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              setCurrentIndex((currentIndex + 1) % 2);
+            },
+            child: currentIndex == 0 ? Icon(Icons.add) : Icon(Icons.home),
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setCurrentIndex((currentIndex + 1) % 2);
-        },
-        child: currentIndex == 0 ? Icon(Icons.add) : Icon(Icons.home),
-      ),
-    ),
-  ),
-);
+    );
   }
 }

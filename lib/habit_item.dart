@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './json.dart';
+import 'dart:math';
 
 class HabitItem with ChangeNotifier {
   String name;
@@ -68,6 +69,18 @@ class HabitItemList with ChangeNotifier {
       );
     }
     return items[currentIndex];
+  }
+
+  HabitItem deleteItem(int index) {
+    if (index < 0 || index >= items.length) {
+      throw RangeError('Index out of range');
+    }
+    HabitItem removedItem = items.removeAt(index);
+    if (currentIndex >= items.length) {
+      currentIndex = max(0, items.length - 1);
+    }
+    notifyListeners();
+    return removedItem;
   }
 
   void setIndex(int index) {

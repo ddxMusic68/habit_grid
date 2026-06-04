@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:money_filler/json.dart';
-import 'dart:math';
 
 class NewHabitPage extends StatefulWidget {
   final Function onHabitAdded;
@@ -15,7 +14,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _countIncrementController = TextEditingController();
   final TextEditingController _squareCostController = TextEditingController();
-  final TextEditingController _squaresPerRowController = TextEditingController();
+  final TextEditingController _totalSquaresController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -40,20 +39,20 @@ class _NewHabitPageState extends State<NewHabitPage> {
           ),
         ),
         TextField(
-          controller: _squaresPerRowController,
+          controller: _totalSquaresController,
           decoration: InputDecoration(
-            labelText: 'Squares per Row',
+            labelText: 'total squares',
           ),
         ),
         ElevatedButton(
           onPressed: () {
             loadJSON('storage.json').then((data) {
-              int boolListLength = pow((num.tryParse(_squaresPerRowController.text) ?? 0), 2).toInt();
               data.add({
+                'totalCount': 0.0,
                 'name': _nameController.text,
                 'countIncrement': double.tryParse(_countIncrementController.text) ?? 0.0,
                 'squareCost': double.tryParse(_squareCostController.text) ?? 0.0,
-                'boolList': List.filled(boolListLength, false),
+                'boolList': List.filled(int.tryParse(_totalSquaresController.text) ?? 0, false),
               });
               saveJSON('storage.json', data);
               widget.onHabitAdded();

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../habit_item.dart';
 
 class Overview extends StatelessWidget {
+  static const double fontSize = 24;
   const Overview({super.key});
 
   @override
@@ -12,10 +13,10 @@ class Overview extends StatelessWidget {
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text('Name: ${habitItemList.currentItem().name}'),
-            Text('Count: ${habitItemList.currentItem().totalCount}'),
-            Text('Unused: ${habitItemList.currentItem().unused}'),
-            Text(habitItemList.currentItem().progressText),
+            Text('Name: ${habitItemList.currentItem().name}', style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
+            Text('Count: ${habitItemList.currentItem().totalCount}', style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
+            Text('Unused: ${habitItemList.currentItem().unused}', style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
+            Text(habitItemList.currentItem().progressText, style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
           ],
         );
       },
