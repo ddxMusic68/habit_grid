@@ -16,6 +16,7 @@ class Overview extends StatelessWidget {
             Text('Name: ${habitItemList.currentItem().name}', style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
             Text('Count: ${habitItemList.currentItem().totalCount}', style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
             Text('Unused: ${habitItemList.currentItem().unused}', style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
+            Text('percent: ${habitItemList.currentItem().percentageComplete.toStringAsFixed(2)}%', style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
             Text(habitItemList.currentItem().progressText, style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold)),
           ],
         );

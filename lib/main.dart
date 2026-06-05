@@ -74,7 +74,7 @@ class _MyAppState extends State<MyApp> {
             index: currentIndex,
             children: [
               habitPage(context),
-              NewHabitPage(onHabitAdded: initData),
+              NewHabitPage(onHabitAdded: initData, setCurrentIndex: () => setCurrentIndex(0)),
             ],
           ),
           drawer: Consumer<HabitItemList>(
@@ -87,6 +87,7 @@ class _MyAppState extends State<MyApp> {
                       ListTile(
                         onTap: () {
                           habitItemList.setIndex(i);
+                          Navigator.pop(context); // Close the drawer after deletion
                         },
                         title: Text(habitItemList.items[i].name),
                         trailing: IconButton(
